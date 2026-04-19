@@ -1,0 +1,17 @@
+package main;
+import service.SignupService;
+
+public class Main {
+    public static void main(String[] args) {
+
+        SignupService service = new SignupService();
+
+        service.registerMentor(
+                "Rahul",
+                "rahul123@gmail.com",
+                "1234",
+                "Java",
+                3
+        );
+    }
+}

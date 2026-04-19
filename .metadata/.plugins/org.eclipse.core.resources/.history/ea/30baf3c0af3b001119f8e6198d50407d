@@ -1,0 +1,107 @@
+package ui;
+
+import javax.swing.*;
+import service.SignupService;
+
+public class SignupUI {
+
+    public SignupUI() {
+
+        JFrame frame = new JFrame("Signup");
+        frame.setSize(450, 500);
+        frame.setLayout(null);
+
+        // ----------- Fields -----------
+
+        JLabel nameLabel = new JLabel("Name:");
+        nameLabel.setBounds(50, 50, 100, 25);
+        frame.add(nameLabel);
+
+        JTextField nameField = new JTextField();
+        nameField.setBounds(180, 50, 180, 25);
+        frame.add(nameField);
+
+        JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setBounds(50, 90, 100, 25);
+        frame.add(emailLabel);
+
+        JTextField emailField = new JTextField();
+        emailField.setBounds(180, 90, 180, 25);
+        frame.add(emailField);
+
+        JLabel passLabel = new JLabel("Password:");
+        passLabel.setBounds(50, 130, 100, 25);
+        frame.add(passLabel);
+
+        JTextField passField = new JTextField();
+        passField.setBounds(180, 130, 180, 25);
+        frame.add(passField);
+
+        JLabel roleLabel = new JLabel("Role:");
+        roleLabel.setBounds(50, 170, 100, 25);
+        frame.add(roleLabel);
+
+        String[] roles = {"mentor", "mentee"};
+        JComboBox<String> roleBox = new JComboBox<>(roles);
+        roleBox.setBounds(180, 170, 180, 25);
+        frame.add(roleBox);
+
+        JLabel extraLabel = new JLabel("Skills / Interests:");
+        extraLabel.setBounds(50, 210, 120, 25);
+        frame.add(extraLabel);
+
+        JTextField extraField = new JTextField();
+        extraField.setBounds(180, 210, 180, 25);
+        frame.add(extraField);
+
+        JLabel expGoalLabel = new JLabel("Experience / Goal:");
+        expGoalLabel.setBounds(50, 250, 130, 25);
+        frame.add(expGoalLabel);
+
+        JTextField expGoalField = new JTextField();
+        expGoalField.setBounds(180, 250, 180, 25);
+        frame.add(expGoalField);
+
+        // ----------- Button -----------
+
+        JButton signupBtn = new JButton("Signup");
+        signupBtn.setBounds(150, 320, 120, 30);
+        frame.add(signupBtn);
+
+        // ----------- BUTTON LOGIC (IMPORTANT) -----------
+
+        signupBtn.addActionListener(e -> {
+
+            String name = nameField.getText();
+            String email = emailField.getText();
+            String password = passField.getText();
+            String role = (String) roleBox.getSelectedItem();
+            String extra = extraField.getText();
+            String expGoal = expGoalField.getText();
+
+            SignupService service = new SignupService();
+
+            try {
+                if (role.equals("mentor")) {
+
+                    int exp = Integer.parseInt(expGoal);
+                    service.registerMentor(name, email, password, extra, exp);
+
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Mentee signup coming next");
+                    return;
+                }
+
+                JOptionPane.showMessageDialog(frame, "Signup Successful!");
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(frame, "Error: " + ex.getMessage());
+            }
+        });
+
+        // ----------- FINAL -----------
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}

@@ -1,0 +1,73 @@
+package ui;
+
+import javax.swing.*;
+import java.sql.*;
+import dao.RequestDAO;
+import db.DBConnection;
+
+public class MentorDashboardUI {
+
+    public MentorDashboardUI(int mentorId) {
+
+        JFrame frame = new JFrame("Mentor Dashboard");
+        frame.setSize(500, 500);
+        frame.setLayout(null);
+
+        JLabel title = new JLabel("Incoming Requests:");
+        title.setBounds(50, 20, 200, 25);
+        frame.add(title);
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String query = "SELECT * FROM requests WHERE mentor_id=?";
+
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setInt(1, mentorId);
+
+            ResultSet rs = ps.executeQuery();
+
+            int y = 60;
+
+            while (rs.next()) {
+
+                int requestId = rs.getInt("request_id");
+                int menteeId = rs.getInt("mentee_id");
+                String status = rs.getString("status");
+
+                JLabel label = new JLabel("Mentee ID: " + menteeId + " | " + status);
+                label.setBounds(50, y, 250, 25);
+
+                JButton accept = new JButton("ACCEPT");
+                accept.setBounds(300, y, 90, 25);
+
+                JButton reject = new JButton("REJECT");
+                reject.setBounds(400, y, 90, 25);
+
+                RequestDAO dao = new RequestDAO();
+
+                accept.addActionListener(e -> {
+                    dao.updateRequestStatus(requestId, "Accepted");
+                    JOptionPane.showMessageDialog(frame, "Accepted");
+                });
+
+                reject.addActionListener(e -> {
+                    dao.updateRequestStatus(requestId, "Rejected");
+                    JOptionPane.showMessageDialog(frame, "Rejected");
+                });
+
+                frame.add(label);
+                frame.add(accept);
+                frame.add(reject);
+
+                y += 40;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}

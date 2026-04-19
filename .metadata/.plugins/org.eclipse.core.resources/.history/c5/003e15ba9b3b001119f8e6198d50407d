@@ -1,0 +1,20 @@
+package ui;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
+public class MentorUI {
+    public static void main(String[] args) {
+
+        JFrame frame = new JFrame("Mentee Connect");
+        frame.setSize(400, 400);
+        frame.setLayout(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JLabel title = new JLabel("Add Mentor");
+        title.setBounds(140, 20, 150, 30);
+        frame.add(title);
+
+        frame.setVisible(true);
+    }
+}v

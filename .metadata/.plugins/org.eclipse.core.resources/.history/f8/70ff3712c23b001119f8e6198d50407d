@@ -1,0 +1,93 @@
+package ui;
+
+import javax.swing.*;
+import java.sql.*;
+import db.DBConnection;
+
+public class IntroUI {
+
+    JFrame frame;
+
+    public IntroUI() {
+
+        frame = new JFrame("Mentee Connect");
+        frame.setSize(600, 400);
+        frame.setLayout(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // 🔥 TITLE
+        JLabel title = new JLabel("WELCOME TO MENTEE CONNECT");
+        title.setBounds(170, 40, 300, 30);
+        frame.add(title);
+
+        // ---------------- SIGN IN BUTTON ----------------
+        JButton signInBtn = new JButton("Sign In");
+        signInBtn.setBounds(230, 100, 120, 30);
+        frame.add(signInBtn);
+
+        signInBtn.addActionListener(e -> {
+            frame.dispose();
+            new LoginChoiceUI();
+        });
+
+        // ---------------- SIGN UP BUTTON ----------------
+        JButton signUpBtn = new JButton("Sign Up");
+        signUpBtn.setBounds(230, 150, 120, 30);
+        frame.add(signUpBtn);
+
+        signUpBtn.addActionListener(e -> {
+            frame.dispose();
+            new SignupChoiceUI();
+        });
+
+        // ---------------- SEE MENTORS BUTTON ----------------
+        JButton viewMentorsBtn = new JButton("See Mentors");
+        viewMentorsBtn.setBounds(230, 200, 120, 30);
+        frame.add(viewMentorsBtn);
+
+        viewMentorsBtn.addActionListener(e -> showMentors());
+
+        frame.setVisible(true);
+    }
+
+    // 🔥 FETCH MENTORS FROM DATABASE
+    private void showMentors() {
+
+        JFrame popup = new JFrame("Mentors List");
+        popup.setSize(500, 400);
+        popup.setLayout(null);
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String query = "SELECT name, email, skills, experience FROM mentors";
+
+            PreparedStatement ps = con.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+
+            int y = 30;
+
+            while (rs.next()) {
+
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                String skills = rs.getString("skills");
+                int exp = rs.getInt("experience");
+
+                JLabel label = new JLabel(
+                        name + " | " + email + " | " + skills + " | " + exp + " yrs"
+                );
+
+                label.setBounds(20, y, 450, 25);
+                popup.add(label);
+
+                y += 30;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        popup.setVisible(true);
+    }
+}

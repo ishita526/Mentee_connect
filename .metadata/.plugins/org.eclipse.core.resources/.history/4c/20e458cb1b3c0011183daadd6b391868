@@ -1,0 +1,51 @@
+package service;
+
+import dao.UserDAO;
+import dao.MenteeDAO;
+import dao.MentorDAO;
+import model.User;
+import model.Mentee;
+import model.Mentor;
+
+public class SignupService {
+
+    // ✅ RETURN mentorId
+    public int registerMentor(String name, String email, String password, String skills, int exp) {
+
+        UserDAO userDAO = new UserDAO();
+        int userId = userDAO.addUser(new User(email, password, "mentor"));
+
+        if (userId != -1) {
+            Mentor mentor = new Mentor(name, email, password, skills, exp);
+
+            MentorDAO mentorDAO = new MentorDAO();
+            
+            // 👇 IMPORTANT: this must return mentorId
+            int mentorId = mentorDAO.addMentorWithUserId(mentor, userId);
+
+            return mentorId;
+        }
+
+        return -1;
+    }
+
+    // ✅ Optional: also return menteeId for consistency
+    public int registerMentee(String name, String email, String password, String interests, String goal) {
+
+        UserDAO userDAO = new UserDAO();
+        int userId = userDAO.addUser(new User(email, password, "mentee"));
+
+        if (userId != -1) {
+            Mentee mentee = new Mentee(name, email, interests, goal);
+
+            MenteeDAO menteeDAO = new MenteeDAO();
+            
+            // 👇 must return menteeId
+            int menteeId = menteeDAO.addMenteeWithUserId(mentee, userId);
+
+            return menteeId;
+        }
+
+        return -1;
+    }
+}

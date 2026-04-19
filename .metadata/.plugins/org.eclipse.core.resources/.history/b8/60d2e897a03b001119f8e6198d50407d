@@ -1,0 +1,22 @@
+package main;
+
+import dao.MentorDAO;
+import model.Mentor;
+
+public class main {
+
+    public static void main(String[] args) {
+
+        MentorDAO dao = new MentorDAO();
+
+        Mentor mentor = new Mentor(
+                "TestUser",
+                "testuser@gmail.com",
+                "1234",
+                "Java",
+                3
+        );
+
+        dao.addMentor(mentor);
+    }
+}

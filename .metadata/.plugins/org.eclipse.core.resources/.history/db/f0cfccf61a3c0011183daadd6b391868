@@ -1,0 +1,110 @@
+package dao;
+
+import db.DBConnection;
+import model.Mentor;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+public class MentorDAO {
+
+    public void addMentor(Mentor mentor) {
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String query = "INSERT INTO mentors(name, email, password, skills, experience) VALUES (?, ?, ?, ?, ?)";
+
+            PreparedStatement ps = con.prepareStatement(query);
+
+            ps.setString(1, mentor.getName());
+            ps.setString(2, mentor.getEmail());
+            ps.setString(3, mentor.getPassword());
+            ps.setString(4, mentor.getSkills());
+            ps.setInt(5, mentor.getExperience());
+
+            int rows = ps.executeUpdate();
+
+            if (rows > 0) {
+                System.out.println("Mentor inserted successfully");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void addMentorWithUserId(Mentor mentor, int userId) {
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String query = "INSERT INTO mentors(name, email, skills, experience, user_id) VALUES (?, ?, ?, ?, ?)";
+
+            PreparedStatement ps = con.prepareStatement(query);
+
+            ps.setString(1, mentor.getName());
+            ps.setString(2, mentor.getEmail());
+            ps.setString(3, mentor.getSkills());
+            ps.setInt(4, mentor.getExperience());
+            ps.setInt(5, userId);
+
+            ps.executeUpdate();
+
+            System.out.println("Mentor registered successfully");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Fetches current mentor details as a String array.
+     * Returns: [name, email, skills, experience]
+     */
+    public String[] getMentorDetails(int mentorId) {
+        try {
+            Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(
+                "SELECT name, email, skills, experience FROM mentors WHERE mentor_id = ?"
+            );
+            ps.setInt(1, mentorId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return new String[]{
+                    rs.getString("name"),
+                    rs.getString("email"),
+                    rs.getString("skills"),
+                    String.valueOf(rs.getInt("experience"))
+                };
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Updates name, email, skills, experience for the given mentor.
+     * Returns true on success.
+     */
+    public boolean updateMentor(int mentorId, String name, String email, String skills, int experience) {
+        try {
+            Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(
+                "UPDATE mentors SET name=?, email=?, skills=?, experience=? WHERE mentor_id=?"
+            );
+            ps.setString(1, name);
+            ps.setString(2, email);
+            ps.setString(3, skills);
+            ps.setInt(4, experience);
+            ps.setInt(5, mentorId);
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+}

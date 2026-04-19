@@ -1,0 +1,39 @@
+package ui;
+
+import javax.swing.*;
+
+public class SignupChoiceUI {
+
+    public SignupChoiceUI() {
+
+        JFrame frame = new JFrame("Choose Signup Type");
+        frame.setSize(400, 300);
+        frame.setLayout(null);
+
+        JLabel label = new JLabel("Sign up as:");
+        label.setBounds(140, 50, 150, 30);
+        frame.add(label);
+
+        JButton mentorBtn = new JButton("Mentor");
+        mentorBtn.setBounds(120, 100, 150, 30);
+        frame.add(mentorBtn);
+
+        JButton menteeBtn = new JButton("Mentee");
+        menteeBtn.setBounds(120, 150, 150, 30);
+        frame.add(menteeBtn);
+
+        // Navigation
+        mentorBtn.addActionListener(e -> {
+            frame.dispose();
+            new MentorSignupUI();
+        });
+
+        menteeBtn.addActionListener(e -> {
+            frame.dispose();
+            new MenteeSignupUI();
+        });
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}

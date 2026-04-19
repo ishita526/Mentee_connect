@@ -1,0 +1,59 @@
+package ui;
+
+import javax.swing.*;
+import dao.LoginDAO;
+import util.Session;
+
+public class MenteeLoginUI {
+
+    public MenteeLoginUI() {
+
+        JFrame frame = new JFrame("Mentee Login");
+        frame.setSize(400, 300);
+        frame.setLayout(null);
+
+        JTextField email = new JTextField();
+        JPasswordField password = new JPasswordField();
+
+        email.setBounds(150, 80, 180, 25);
+        password.setBounds(150, 120, 180, 25);
+
+        frame.add(new JLabel("Email:")).setBounds(50, 80, 100, 25);
+        frame.add(email);
+
+        frame.add(new JLabel("Password:")).setBounds(50, 120, 100, 25);
+        frame.add(password);
+
+        JButton loginBtn = new JButton("Login");
+        loginBtn.setBounds(150, 170, 120, 30);
+        frame.add(loginBtn);
+
+        loginBtn.addActionListener(e -> {
+
+            LoginDAO dao = new LoginDAO();
+
+            String pass = new String(password.getPassword());
+
+            int userId = dao.getUserId(email.getText(), pass);
+
+            if (userId != -1) {
+
+                // ✅ session tracking
+                Session.userId = userId;
+                Session.role = "mentee";
+
+                JOptionPane.showMessageDialog(frame, "Login Success");
+
+                frame.dispose();
+
+                new MenteeDashboardUI(userId);
+
+            } else {
+                JOptionPane.showMessageDialog(frame, "Invalid Credentials");
+            }
+        });
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}

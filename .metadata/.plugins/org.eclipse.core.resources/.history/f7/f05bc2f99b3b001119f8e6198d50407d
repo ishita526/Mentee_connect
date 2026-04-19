@@ -1,0 +1,55 @@
+package ui;
+
+import javax.swing.*;
+
+public class MentorUI {
+    public static void main(String[] args) {
+
+        JFrame frame = new JFrame("Mentee Connect");
+        frame.setSize(400, 400);
+        frame.setLayout(null);
+
+        JLabel title = new JLabel("Add Mentor");
+        title.setBounds(140, 20, 150, 30);
+        frame.add(title);
+
+        JLabel nameLabel = new JLabel("Name:");
+        nameLabel.setBounds(50, 80, 100, 25);
+        frame.add(nameLabel);
+
+        JTextField nameField = new JTextField();
+        nameField.setBounds(150, 80, 150, 25);
+        frame.add(nameField);
+
+        JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setBounds(50, 120, 100, 25);
+        frame.add(emailLabel);
+
+        JTextField emailField = new JTextField();
+        emailField.setBounds(150, 120, 150, 25);
+        frame.add(emailField);
+
+        JLabel skillsLabel = new JLabel("Skills:");
+        skillsLabel.setBounds(50, 160, 100, 25);
+        frame.add(skillsLabel);
+
+        JTextField skillsField = new JTextField();
+        skillsField.setBounds(150, 160, 150, 25);
+        frame.add(skillsField);
+
+        JLabel expLabel = new JLabel("Experience:");
+        expLabel.setBounds(50, 200, 100, 25);
+        frame.add(expLabel);
+
+        JTextField expField = new JTextField();
+        expField.setBounds(150, 200, 150, 25);
+        frame.add(expField);
+
+        JButton addButton = new JButton("Add Mentor");
+        addButton.setBounds(120, 260, 150, 30);
+        frame.add(addButton);
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}

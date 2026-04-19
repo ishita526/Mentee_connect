@@ -1,0 +1,22 @@
+package services;
+
+import dao.UserDAO;
+import dao.MentorDAO;
+import model.User;
+import model.Mentor;
+
+public class SignupService {
+
+    public void registerMentor(String name, String email, String password, String skills, int exp) {
+
+        UserDAO userDAO = new UserDAO();
+        int userId = userDAO.addUser(new User(email, password, "mentor"));
+
+        if (userId != -1) {
+            Mentor mentor = new Mentor(name, email, password, skills, exp);
+
+            MentorDAO mentorDAO = new MentorDAO();
+            mentorDAO.addMentorWithUserId(mentor, userId);
+        }
+    }
+}

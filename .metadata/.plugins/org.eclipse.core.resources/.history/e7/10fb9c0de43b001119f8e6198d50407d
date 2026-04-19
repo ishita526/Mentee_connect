@@ -1,0 +1,38 @@
+package ui;
+
+import javax.swing.*;
+
+public class LoginChoiceUI {
+
+    public LoginChoiceUI() {
+
+        JFrame frame = new JFrame("Login Choice");
+        frame.setSize(400, 300);
+        frame.setLayout(null);
+
+        JLabel label = new JLabel("Login as:");
+        label.setBounds(150, 50, 100, 30);
+        frame.add(label);
+
+        JButton mentorBtn = new JButton("Mentor Login");
+        mentorBtn.setBounds(120, 100, 150, 30);
+        frame.add(mentorBtn);
+
+        JButton menteeBtn = new JButton("Mentee Login");
+        menteeBtn.setBounds(120, 150, 150, 30);
+        frame.add(menteeBtn);
+
+        mentorBtn.addActionListener(e -> {
+            frame.dispose();
+            new MentorLoginUI();
+        });
+
+        menteeBtn.addActionListener(e -> {
+            frame.dispose();
+            new MenteeLoginUI();
+        });
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}

@@ -1,0 +1,121 @@
+package ui;
+
+import javax.swing.*;
+import java.sql.*;
+import db.DBConnection;
+import dao.RequestDAO;
+
+public class ReviewRequestUI {
+
+    JFrame frame;
+
+    int requestId;
+    int menteeId;
+    int mentorId;
+
+    public ReviewRequestUI(int requestId, int menteeId, int mentorId) {
+
+        this.requestId = requestId;
+        this.menteeId = menteeId;
+        this.mentorId = mentorId;
+
+        frame = new JFrame("Review Request");
+        frame.setSize(450, 400);
+        frame.setLayout(null);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        loadMenteeDetails();
+
+        frame.setVisible(true);
+    }
+
+    private void loadMenteeDetails() {
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String query = "SELECT * FROM mentees WHERE mentee_id=?";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setInt(1, menteeId);
+
+            ResultSet rs = ps.executeQuery();
+
+            // ---------------- TITLE ----------------
+            JLabel title = new JLabel("Mentee Profile");
+            title.setBounds(150, 20, 200, 25);
+            frame.add(title);
+
+            if (rs.next()) {
+
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                String interests = rs.getString("interests");
+                String goal = rs.getString("goal");
+
+                // Handle null values safely
+                if (interests == null) interests = "Not specified";
+                if (goal == null) goal = "Not specified";
+
+                JLabel details = new JLabel(
+                        "<html>" +
+                                "<b>Name:</b> " + name + "<br><br>" +
+                                "<b>Email:</b> " + email + "<br><br>" +
+                                "<b>Interests:</b> " + interests + "<br><br>" +
+                                "<b>Goal:</b> " + goal +
+                                "</html>"
+                );
+
+                details.setBounds(50, 60, 350, 150);
+                frame.add(details);
+
+                // ---------------- BUTTONS ----------------
+                JButton accept = new JButton("ACCEPT");
+                JButton reject = new JButton("REJECT");
+
+                accept.setBounds(80, 250, 120, 30);
+                reject.setBounds(230, 250, 120, 30);
+
+                RequestDAO dao = new RequestDAO();
+
+                accept.addActionListener(e -> {
+                    dao.updateRequestStatus(requestId, "Accepted");
+                    JOptionPane.showMessageDialog(frame, "Request Accepted");
+                    frame.dispose();
+                });
+
+                reject.addActionListener(e -> {
+
+                    dao.deleteRequest(requestId);
+
+                    JOptionPane.showMessageDialog(frame, "Request Rejected & Deleted");
+
+                    frame.dispose();
+                });
+
+                frame.add(accept);
+                frame.add(reject);
+
+            } else {
+
+                // ---------------- NO DATA CASE ----------------
+                JLabel error = new JLabel("Mentee not found!");
+                error.setBounds(150, 120, 200, 25);
+                frame.add(error);
+
+                System.out.println("DEBUG: No mentee found for ID = " + menteeId);
+            }
+
+            frame.repaint();
+            frame.revalidate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            JLabel error = new JLabel("Error loading profile!");
+            error.setBounds(150, 120, 200, 25);
+            frame.add(error);
+
+            frame.repaint();
+        }
+    }
+}

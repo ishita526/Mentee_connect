@@ -1,0 +1,94 @@
+package ui;
+
+import javax.swing.*;
+import java.sql.*;
+import db.DBConnection;
+import dao.RequestDAO;
+
+public class ReviewRequestUI {
+
+    JFrame frame;
+
+    int requestId;
+    int menteeId;
+    int mentorId;
+
+    public ReviewRequestUI(int requestId, int menteeId, int mentorId) {
+
+        this.requestId = requestId;
+        this.menteeId = menteeId;
+        this.mentorId = mentorId;
+
+        frame = new JFrame("Review Request");
+        frame.setSize(450, 400);
+        frame.setLayout(null);
+
+        loadMenteeDetails();
+
+        frame.setVisible(true);
+    }
+
+    private void loadMenteeDetails() {
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String query = "SELECT * FROM mentees WHERE mentee_id=?";
+
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setInt(1, menteeId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                String skills = rs.getString("skills");
+                String education = rs.getString("education");
+
+                JLabel title = new JLabel("Mentee Profile");
+                title.setBounds(150, 20, 200, 25);
+
+                JLabel details = new JLabel(
+                        "<html>" +
+                                "<b>Name:</b> " + name + "<br><br>" +
+                                "<b>Email:</b> " + email + "<br><br>" +
+                                "<b>Skills:</b> " + skills + "<br><br>" +
+                                "<b>Education:</b> " + education +
+                                "</html>"
+                );
+
+                details.setBounds(50, 60, 350, 150);
+
+                JButton accept = new JButton("ACCEPT");
+                JButton reject = new JButton("REJECT");
+
+                accept.setBounds(80, 250, 120, 30);
+                reject.setBounds(230, 250, 120, 30);
+
+                RequestDAO dao = new RequestDAO();
+
+                accept.addActionListener(e -> {
+                    dao.updateRequestStatus(requestId, "Accepted");
+                    JOptionPane.showMessageDialog(frame, "Request Accepted");
+                    frame.dispose();
+                });
+
+                reject.addActionListener(e -> {
+                    dao.updateRequestStatus(requestId, "Rejected");
+                    JOptionPane.showMessageDialog(frame, "Request Rejected");
+                    frame.dispose();
+                });
+
+                frame.add(title);
+                frame.add(details);
+                frame.add(accept);
+                frame.add(reject);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

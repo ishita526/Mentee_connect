@@ -1,0 +1,72 @@
+package ui;
+
+import javax.swing.*;
+import java.sql.*;
+import db.DBConnection;
+
+public class MentorDashboardUI {
+
+    JFrame frame;
+    int mentorId;
+
+    public MentorDashboardUI(int mentorId) {
+
+        this.mentorId = mentorId;
+
+        frame = new JFrame("Mentor Dashboard");
+        frame.setSize(500, 500);
+        frame.setLayout(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        loadRequests();
+
+        frame.setVisible(true);
+    }
+
+    private void loadRequests() {
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String query = "SELECT * FROM requests WHERE mentor_id=?";
+
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setInt(1, mentorId);
+
+            ResultSet rs = ps.executeQuery();
+
+            int y = 60;
+
+            JLabel title = new JLabel("Incoming Requests:");
+            title.setBounds(50, 20, 200, 25);
+            frame.add(title);
+
+            while (rs.next()) {
+
+                int requestId = rs.getInt("request_id");
+                int menteeId = rs.getInt("mentee_id");
+                String status = rs.getString("status");
+
+                JLabel label = new JLabel(
+                        "Mentee ID: " + menteeId + " | Status: " + status
+                );
+                label.setBounds(50, y, 300, 25);
+
+                JButton review = new JButton("REVIEW");
+                review.setBounds(320, y, 120, 25);
+
+                review.addActionListener(e -> {
+                    new ReviewRequestUI(requestId, menteeId, mentorId);
+                });
+
+                frame.add(label);
+                frame.add(review);
+
+                y += 40;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

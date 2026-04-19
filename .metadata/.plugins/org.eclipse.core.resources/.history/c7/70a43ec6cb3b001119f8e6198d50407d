@@ -1,0 +1,181 @@
+package ui;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.sql.*;
+import db.DBConnection;
+import dao.RequestDAO;
+
+public class MenteeDashboardUI {
+
+    JFrame frame;
+    JTable table;
+    JTextField searchField;
+
+    int menteeId;
+    String username;
+
+    public MenteeDashboardUI(int menteeId, String username) {
+
+        this.menteeId = menteeId;
+        this.username = username;
+
+        frame = new JFrame("Mentee Dashboard");
+        frame.setSize(900, 600);
+        frame.setLayout(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // ---------------- TOP LABELS ----------------
+
+        JLabel welcome = new JLabel("WELCOME, " + username);
+        welcome.setBounds(20, 10, 300, 30);
+        frame.add(welcome);
+
+        JLabel role = new JLabel("ROLE: Mentee");
+        role.setBounds(20, 35, 200, 25);
+        frame.add(role);
+
+        // CLICK TO EDIT PROFILE
+        welcome.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        welcome.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                openEditProfile();
+            }
+        });
+
+        // ---------------- LOGOUT BUTTON ----------------
+
+        JButton logout = new JButton("Logout");
+        logout.setBounds(780, 20, 90, 30);
+        frame.add(logout);
+
+        logout.addActionListener(e -> {
+            frame.dispose();
+            new IntroUI();
+        });
+
+        // ---------------- SEARCH ----------------
+
+        searchField = new JTextField();
+        searchField.setBounds(250, 70, 300, 30);
+        frame.add(searchField);
+
+        JButton searchBtn = new JButton("Search");
+        searchBtn.setBounds(570, 70, 100, 30);
+        frame.add(searchBtn);
+
+        searchBtn.addActionListener(e -> loadMentors(searchField.getText()));
+
+        // ---------------- TABLE ----------------
+
+        table = new JTable();
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.setBounds(50, 120, 800, 400);
+        frame.add(scroll);
+
+        loadMentors("");
+
+        frame.setVisible(true);
+    }
+
+    // ---------------- LOAD MENTORS TABLE ----------------
+
+    private void loadMentors(String keyword) {
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String query;
+
+            if (keyword == null || keyword.isEmpty()) {
+                query = "SELECT mentor_id, name, email, skills, experience FROM mentors";
+            } else {
+                query = "SELECT mentor_id, name, email, skills, experience FROM mentors " +
+                        "WHERE name LIKE ? OR skills LIKE ?";
+            }
+
+            PreparedStatement ps = con.prepareStatement(query);
+
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(1, "%" + keyword + "%");
+                ps.setString(2, "%" + keyword + "%");
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            String[] cols = {"ID", "Name", "Email", "Skills", "Experience", "Action"};
+            DefaultTableModel model = new DefaultTableModel(cols, 0);
+
+            while (rs.next()) {
+
+                int mentorId = rs.getInt("mentor_id");
+
+                JButton btn = new JButton("CONNECT");
+
+                btn.addActionListener(e -> {
+                    RequestDAO dao = new RequestDAO();
+                    dao.sendRequest(mentorId, menteeId);
+                    JOptionPane.showMessageDialog(frame, "Request Sent!");
+                });
+
+                model.addRow(new Object[]{
+                        mentorId,
+                        rs.getString("name"),
+                        rs.getString("email"),
+                        rs.getString("skills"),
+                        rs.getInt("experience"),
+                        "CONNECT"
+                });
+            }
+
+            table.setModel(model);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ---------------- EDIT PROFILE ----------------
+
+    private void openEditProfile() {
+
+        JFrame edit = new JFrame("Edit Profile");
+        edit.setSize(400, 300);
+        edit.setLayout(null);
+
+        JTextField name = new JTextField(username);
+        name.setBounds(100, 50, 200, 30);
+
+        JButton update = new JButton("Update");
+        update.setBounds(150, 120, 100, 30);
+
+        edit.add(new JLabel("Name:")).setBounds(50, 50, 100, 30);
+        edit.add(name);
+        edit.add(update);
+
+        update.addActionListener(e -> {
+
+            try {
+                Connection con = DBConnection.getConnection();
+
+                String sql = "UPDATE mentees SET name=? WHERE mentee_id=?";
+                PreparedStatement ps = con.prepareStatement(sql);
+
+                ps.setString(1, name.getText());
+                ps.setInt(2, menteeId);
+
+                ps.executeUpdate();
+
+                JOptionPane.showMessageDialog(edit, "Updated Successfully");
+
+                edit.dispose();
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        edit.setVisible(true);
+    }
+}

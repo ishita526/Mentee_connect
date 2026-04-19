@@ -1,0 +1,146 @@
+package ui;
+
+import javax.swing.*;
+import java.awt.*;
+import java.sql.*;
+import db.DBConnection;
+import dao.RequestDAO;
+
+public class MenteeDashboardUI {
+
+    JFrame frame;
+    JPanel listPanel;
+    JScrollPane scrollPane;
+
+    int menteeId;
+    String username;
+
+    public MenteeDashboardUI(int menteeId, String username) {
+
+        this.menteeId = menteeId;
+        this.username = username;
+
+        frame = new JFrame("Mentee Connect");
+        frame.setSize(1000, 650);
+        frame.setLayout(new BorderLayout());
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // ---------------- TOP BAR ----------------
+        JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+        JLabel welcome = new JLabel("Welcome, " + username);
+        JLabel role = new JLabel(" | Role: Mentee");
+
+        JTextField searchField = new JTextField(20);
+        JButton searchBtn = new JButton("Search");
+        JButton logout = new JButton("Logout");
+
+        topBar.add(welcome);
+        topBar.add(role);
+        topBar.add(Box.createHorizontalStrut(40));
+        topBar.add(searchField);
+        topBar.add(searchBtn);
+        topBar.add(Box.createHorizontalStrut(40));
+        topBar.add(logout);
+
+        frame.add(topBar, BorderLayout.NORTH);
+
+        logout.addActionListener(e -> {
+            frame.dispose();
+            new IntroUI();
+        });
+
+        // ---------------- CENTER PANEL (FLOW CARDS FIXED) ----------------
+        listPanel = new JPanel();
+
+        // ⭐ FIX: replaces GridLayout (which forced equal box sizes)
+        listPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 20));
+
+        scrollPane = new JScrollPane(listPanel);
+        frame.add(scrollPane, BorderLayout.CENTER);
+
+        // initial load
+        loadMentors("");
+
+        searchBtn.addActionListener(e -> loadMentors(searchField.getText()));
+
+        frame.setVisible(true);
+    }
+
+    // ---------------- LOAD MENTORS AS CARDS ----------------
+    private void loadMentors(String keyword) {
+
+        listPanel.removeAll();
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String sql;
+
+            if (keyword == null || keyword.trim().isEmpty()) {
+                sql = "SELECT * FROM mentors";
+            } else {
+                sql = "SELECT * FROM mentors WHERE name LIKE ? OR skills LIKE ?";
+            }
+
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                ps.setString(1, "%" + keyword + "%");
+                ps.setString(2, "%" + keyword + "%");
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                int mentorId = rs.getInt("mentor_id");
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                String skills = rs.getString("skills");
+                int exp = rs.getInt("experience");
+
+                // ---------------- CARD ----------------
+                JPanel card = new JPanel();
+                card.setLayout(new BorderLayout());
+
+                // ⭐ IMPORTANT FIX: allow natural sizing
+                card.setPreferredSize(null);
+
+                // nicer spacing
+                card.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(Color.GRAY),
+                        BorderFactory.createEmptyBorder(10, 10, 10, 10)
+                ));
+
+                JLabel info = new JLabel(
+                        "<html>"
+                                + "<b>" + name + "</b><br><br>"
+                                + "Skills: " + skills + "<br>"
+                                + "Experience: " + exp + " yrs<br>"
+                                + "Email: " + email
+                                + "</html>"
+                );
+
+                JButton connect = new JButton("CONNECT");
+
+                connect.addActionListener(e -> {
+                    RequestDAO dao = new RequestDAO();
+                    dao.sendRequest(mentorId, menteeId);
+                    JOptionPane.showMessageDialog(frame, "Request Sent!");
+                });
+
+                card.add(info, BorderLayout.CENTER);
+                card.add(connect, BorderLayout.SOUTH);
+
+                listPanel.add(card);
+            }
+
+            listPanel.revalidate();
+            listPanel.repaint();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

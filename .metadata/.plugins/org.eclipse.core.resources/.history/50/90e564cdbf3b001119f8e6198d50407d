@@ -1,0 +1,15 @@
+package main;
+
+import javax.swing.SwingUtilities;
+import ui.SignupChoiceUI;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        // ✅ Ensures Swing runs on Event Dispatch Thread (important for UI stability)
+        SwingUtilities.invokeLater(() -> {
+            new SignupChoiceUI();
+        });
+    }
+}

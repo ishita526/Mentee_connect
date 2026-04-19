@@ -1,0 +1,62 @@
+package dao;
+
+import db.DBConnection;
+import java.sql.*;
+
+public class RequestDAO {
+
+    // Send request (mentee → mentor)
+    public void sendRequest(int mentorId, int menteeId) {
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String query = "INSERT INTO requests(mentor_id, mentee_id, status) VALUES (?, ?, 'Pending')";
+
+            PreparedStatement ps = con.prepareStatement(query);
+
+            ps.setInt(1, mentorId);
+            ps.setInt(2, menteeId);
+
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Accept request (mentor side)
+    public void updateRequestStatus(int requestId, String status) {
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String query = "UPDATE requests SET status=? WHERE request_id=?";
+
+            PreparedStatement ps = con.prepareStatement(query);
+
+            ps.setString(1, status);
+            ps.setInt(2, requestId);
+
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void deleteRequest(int requestId) {
+        try {
+            Connection con = db.DBConnection.getConnection();
+
+            String sql = "DELETE FROM requests WHERE request_id=?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, requestId);
+
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

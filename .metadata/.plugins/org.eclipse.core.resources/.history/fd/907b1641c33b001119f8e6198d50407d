@@ -1,0 +1,157 @@
+package ui;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+
+import java.awt.*;
+import java.sql.*;
+import db.DBConnection;
+
+public class IntroUI {
+
+    JFrame frame;
+    JPanel centerPanel;
+
+    public IntroUI() {
+
+        frame = new JFrame("Mentee Connect");
+        frame.setSize(800, 600);
+        frame.setLayout(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // ---------------- TOP BAR ----------------
+        JPanel topBar = new JPanel();
+        topBar.setLayout(null);
+        topBar.setBounds(0, 0, 800, 50);
+
+        JLabel title = new JLabel("MENTEE CONNECT");
+        title.setBounds(20, 10, 200, 30);
+        topBar.add(title);
+
+        JButton signIn = new JButton("Sign In");
+        signIn.setBounds(550, 10, 100, 30);
+        topBar.add(signIn);
+
+        JButton signUp = new JButton("Sign Up");
+        signUp.setBounds(660, 10, 100, 30);
+        topBar.add(signUp);
+
+        frame.add(topBar);
+
+        // ---------------- CENTER IMAGE ----------------
+        JLabel imageLabel = new JLabel();
+
+        ImageIcon icon = new ImageIcon(
+                "C:\\Users\\LENOVO\\Desktop\\Projects\\DBMS MiniProject - MenteeConnect\\Mentee_connect\\logo.png"
+        );
+
+        Image img = icon.getImage().getScaledInstance(300, 250, Image.SCALE_SMOOTH);
+        imageLabel.setIcon(new ImageIcon(img));
+
+        imageLabel.setBounds(250, 70, 300, 250);
+        frame.add(imageLabel);
+
+        // ---------------- BOTTOM BUTTONS ----------------
+        JButton mentorsBtn = new JButton("Connected Mentors");
+        mentorsBtn.setBounds(200, 350, 180, 40);
+        frame.add(mentorsBtn);
+
+        JButton menteesBtn = new JButton("Connected Mentees");
+        menteesBtn.setBounds(400, 350, 180, 40);
+        frame.add(menteesBtn);
+
+        // ---------------- CENTER PANEL (TABLE AREA) ----------------
+        centerPanel = new JPanel();
+        centerPanel.setBounds(150, 420, 500, 130);
+        centerPanel.setLayout(new BorderLayout());
+        frame.add(centerPanel);
+
+        // ---------------- ACTIONS ----------------
+
+        signIn.addActionListener(e -> {
+            frame.dispose();
+            new LoginChoiceUI();
+        });
+
+        signUp.addActionListener(e -> {
+            frame.dispose();
+            new SignupChoiceUI();
+        });
+
+        mentorsBtn.addActionListener(e -> showMentors());
+
+        menteesBtn.addActionListener(e -> showMentees());
+
+        frame.setVisible(true);
+    }
+
+    // ---------------- SHOW MENTORS ----------------
+    private void showMentors() {
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String query = "SELECT name, email, skills, experience FROM mentors";
+            PreparedStatement ps = con.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+
+            String[] cols = {"Name", "Email", "Skills", "Exp"};
+            DefaultTableModel model = new DefaultTableModel(cols, 0);
+
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                        rs.getString("name"),
+                        rs.getString("email"),
+                        rs.getString("skills"),
+                        rs.getInt("experience")
+                });
+            }
+
+            JTable table = new JTable(model);
+            JScrollPane scroll = new JScrollPane(table);
+
+            centerPanel.removeAll();
+            centerPanel.add(scroll, BorderLayout.CENTER);
+            centerPanel.revalidate();
+            centerPanel.repaint();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ---------------- SHOW MENTEES ----------------
+    private void showMentees() {
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String query = "SELECT name, email, interests, goal FROM mentees";
+            PreparedStatement ps = con.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+
+            String[] cols = {"Name", "Email", "Interests", "Goal"};
+            DefaultTableModel model = new DefaultTableModel(cols, 0);
+
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                        rs.getString("name"),
+                        rs.getString("email"),
+                        rs.getString("interests"),
+                        rs.getString("goal")
+                });
+            }
+
+            JTable table = new JTable(model);
+            JScrollPane scroll = new JScrollPane(table);
+
+            centerPanel.removeAll();
+            centerPanel.add(scroll, BorderLayout.CENTER);
+            centerPanel.revalidate();
+            centerPanel.repaint();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

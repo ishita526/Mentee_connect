@@ -1,0 +1,23 @@
+public void addMentorWithUserId(Mentor mentor, int userId) {
+
+    try {
+        Connection con = DBConnection.getConnection();
+
+        String query = "INSERT INTO mentors(name, email, skills, experience, user_id) VALUES (?, ?, ?, ?, ?)";
+
+        PreparedStatement ps = con.prepareStatement(query);
+
+        ps.setString(1, mentor.getName());
+        ps.setString(2, mentor.getEmail());
+        ps.setString(3, mentor.getSkills());
+        ps.setInt(4, mentor.getExperience());
+        ps.setInt(5, userId);
+
+        ps.executeUpdate();
+
+        System.out.println("Mentor registered successfully");
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}

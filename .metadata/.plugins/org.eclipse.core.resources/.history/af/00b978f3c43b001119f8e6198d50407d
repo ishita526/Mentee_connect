@@ -1,0 +1,121 @@
+package ui;
+
+import javax.swing.*;
+import java.sql.*;
+import dao.RequestDAO;
+import db.DBConnection;
+import util.Session;
+
+public class MenteeDashboardUI {
+
+    JFrame frame;
+    JTextField searchField;
+    JPanel listPanel;
+
+    int menteeId;
+
+    public MenteeDashboardUI(int menteeId) {
+
+        this.menteeId = menteeId;
+
+        frame = new JFrame("Mentee Dashboard");
+        frame.setSize(800, 600);
+        frame.setLayout(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // ---------------- TOP SECTION ----------------
+        JLabel welcome = new JLabel("Welcome, User " + menteeId);
+        welcome.setBounds(20, 10, 200, 25);
+        frame.add(welcome);
+
+        JLabel role = new JLabel("Role: Mentee");
+        role.setBounds(20, 35, 200, 25);
+        frame.add(role);
+
+        // ---------------- SEARCH BAR ----------------
+        searchField = new JTextField();
+        searchField.setBounds(250, 20, 250, 30);
+        frame.add(searchField);
+
+        JButton searchBtn = new JButton("Search");
+        searchBtn.setBounds(520, 20, 100, 30);
+        frame.add(searchBtn);
+
+        searchBtn.addActionListener(e -> loadMentors(searchField.getText()));
+
+        // ---------------- LIST PANEL ----------------
+        listPanel = new JPanel();
+        listPanel.setLayout(null);
+        listPanel.setBounds(50, 80, 700, 400);
+        frame.add(listPanel);
+
+        // load all mentors initially
+        loadMentors("");
+
+        frame.setVisible(true);
+    }
+
+    // ---------------- LOAD MENTORS ----------------
+    private void loadMentors(String keyword) {
+
+        listPanel.removeAll();
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String query;
+
+            if (keyword == null || keyword.isEmpty()) {
+                query = "SELECT * FROM mentors";
+            } else {
+                query = "SELECT * FROM mentors WHERE name LIKE ? OR skills LIKE ?";
+            }
+
+            PreparedStatement ps = con.prepareStatement(query);
+
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(1, "%" + keyword + "%");
+                ps.setString(2, "%" + keyword + "%");
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            int y = 20;
+
+            while (rs.next()) {
+
+                int mentorId = rs.getInt("mentor_id");
+                String name = rs.getString("name");
+                String skills = rs.getString("skills");
+                int exp = rs.getInt("experience");
+
+                JLabel label = new JLabel(
+                        name + " | Skills: " + skills + " | Exp: " + exp + " yrs"
+                );
+                label.setBounds(20, y, 400, 25);
+
+                JButton connect = new JButton("CONNECT");
+                connect.setBounds(450, y, 120, 25);
+
+                RequestDAO dao = new RequestDAO();
+
+                connect.addActionListener(e -> {
+                    dao.sendRequest(mentorId, menteeId);
+                    JOptionPane.showMessageDialog(frame, "Request Sent!");
+                    loadMentors(keyword); // refresh
+                });
+
+                listPanel.add(label);
+                listPanel.add(connect);
+
+                y += 40;
+            }
+
+            listPanel.revalidate();
+            listPanel.repaint();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

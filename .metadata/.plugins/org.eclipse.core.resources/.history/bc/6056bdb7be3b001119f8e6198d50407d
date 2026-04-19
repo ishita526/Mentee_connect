@@ -1,0 +1,61 @@
+package ui;
+
+import javax.swing.*;
+import java.sql.*;
+import dao.RequestDAO;
+import db.DBConnection;
+
+public class MenteeDashboardUI {
+
+    public MenteeDashboardUI(int menteeId) {
+
+        JFrame frame = new JFrame("Mentee Dashboard");
+        frame.setSize(500, 500);
+        frame.setLayout(null);
+
+        JLabel title = new JLabel("Available Mentors:");
+        title.setBounds(50, 20, 200, 25);
+        frame.add(title);
+
+        try {
+            Connection con = DBConnection.getConnection();
+            String query = "SELECT * FROM mentors";
+
+            PreparedStatement ps = con.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+
+            int y = 60;
+
+            while (rs.next()) {
+
+                int mentorId = rs.getInt("mentor_id");
+                String name = rs.getString("name");
+                String skills = rs.getString("skills");
+
+                JLabel label = new JLabel(name + " | " + skills);
+                label.setBounds(50, y, 250, 25);
+
+                JButton btn = new JButton("CONNECT");
+                btn.setBounds(300, y, 120, 25);
+
+                btn.addActionListener(e -> {
+                    RequestDAO dao = new RequestDAO();
+                    dao.sendRequest(mentorId, menteeId);
+
+                    JOptionPane.showMessageDialog(frame, "Request Sent!");
+                });
+
+                frame.add(label);
+                frame.add(btn);
+
+                y += 40;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}

@@ -1,0 +1,36 @@
+package dao;
+
+import db.DBConnection;
+import model.Mentor;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+
+public class MentorDAO {
+
+    public void addMentor(Mentor mentor) {
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String query = "INSERT INTO mentors(name, email, password, skills, experience) VALUES (?, ?, ?, ?, ?)";
+
+            PreparedStatement ps = con.prepareStatement(query);
+
+            ps.setString(1, mentor.getName());
+            ps.setString(2, mentor.getEmail());
+            ps.setString(3, mentor.getPassword());
+            ps.setString(4, mentor.getSkills());
+            ps.setInt(5, mentor.getExperience());
+
+            int rows = ps.executeUpdate();
+
+            if (rows > 0) {
+                System.out.println("Mentor inserted successfully");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
